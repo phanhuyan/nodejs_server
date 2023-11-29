@@ -1,32 +1,29 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
 
-const server = http.createServer((req, res) => {
-    let filePath = '.' + req.url + '.html';
+const app = express();
+const port = 8080;
 
-    // If the file path is just '/', then serve index.html
-    if (filePath === './.html') {
-        filePath = './index.html';
-    }
-
-    // Read the file and serve the appropriate content
-    fs.readFile(filePath, (err, content) => {
-        if (err) {
-            // If file not found, serve 404.html
-            fs.readFile('./404.html', (err, notFoundContent) => {
-                res.writeHead(404, { 'Content-Type': 'text/html' });
-                res.end(notFoundContent, 'utf-8');
-            });
-        } else {
-            // Serve the requested HTML file
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(content, 'utf-8');
-        }
-    });
+// Serve index.html for the root path
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-const port = 8080;
-server.listen(port, () => {
+// Serve about.html for the /about path
+app.get('/about', (req, res) => {
+    res.sendFile(path.join(__dirname, 'about.html'));
+});
+
+// Serve contact-me.html for the /contact-me path
+app.get('/contact-me', (req, res) => {
+    res.sendFile(path.join(__dirname, 'contact-me.html'));
+});
+
+// Serve 404.html for any other paths
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '404.html'));
+});
+
+app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
